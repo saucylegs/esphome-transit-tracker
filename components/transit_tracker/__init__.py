@@ -34,6 +34,7 @@ CONF_DEFAULT_ROUTE_COLOR = "default_route_color"
 CONF_TIME_DISPLAY = "time_display"
 CONF_LIST_MODE = "list_mode"
 CONF_SCROLL_HEADSIGNS = "scroll_headsigns"
+CONF_SHOW_VEHICLE_NUMBERS = "show_vehicle_numbers"
 
 
 def validate_ws_url(value):
@@ -64,6 +65,7 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_BASE_URL): validate_ws_url,
             cv.Optional(CONF_LIMIT, default=3): cv.positive_int,
             cv.Optional(CONF_FEED_CODE, default=""): cv.string,
+            cv.Optional(CONF_SHOW_VEHICLE_NUMBERS, default=False): cv.boolean,
             cv.Optional(CONF_TIME_DISPLAY, default="departure"): cv.one_of(
                 "departure", "arrival"
             ),
@@ -137,6 +139,7 @@ async def to_code(config):
 
     cg.add(var.set_list_mode(config[CONF_LIST_MODE]))
     cg.add(var.set_scroll_headsigns(config[CONF_SCROLL_HEADSIGNS]))
+    cg.add(var.set_show_vehicle_numbers(config[CONF_SHOW_VEHICLE_NUMBERS]))
 
     cg.add(var.set_limit(config[CONF_LIMIT]))
 

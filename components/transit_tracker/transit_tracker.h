@@ -97,6 +97,7 @@ class TransitTracker : public Component {
     Color default_route_color_ = Color(0x028e51);
     std::map<std::string, RouteStyle> route_styles_;
     bool scroll_headsigns_ = false;
+    bool show_vehicle_numbers_ = false;
 };
 
 

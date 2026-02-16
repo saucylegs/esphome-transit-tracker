@@ -16,6 +16,7 @@ class Trip {
     std::string headsign;
     time_t arrival_time;
     time_t departure_time;
+    std::string vehicle;
     bool is_realtime;
 };
 

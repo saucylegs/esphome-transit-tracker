@@ -68,7 +68,8 @@ void TransitTracker::dump_config() {
   ESP_LOGCONFIG(TAG, "  Limit: %d", this->limit_);
   ESP_LOGCONFIG(TAG, "  List mode: %s", this->list_mode_.c_str());
   ESP_LOGCONFIG(TAG, "  Display departure times: %s", this->display_departure_times_ ? "true" : "false");
-  ESP_LOGCONFIG(TAG, "  Scroll Headsigns: %s", this->scroll_headsigns_ ? "true" : "false");
+  ESP_LOGCONFIG(TAG, "  Scroll headsigns: %s", this->scroll_headsigns_ ? "true" : "false");
+  ESP_LOGCONFIG(TAG, "  Show vehicle numbers: %s", this->show_vehicle_numbers_ ? "true" : "false");
 }
 
 void TransitTracker::reconnect() {
@@ -112,6 +113,7 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
     auto data = root["data"].as<JsonObject>();
 
     for (auto trip : data["trips"].as<JsonArray>()) {
+      // PULLMAN SPECIFIC: Have headsign = route name
       std::string headsign = trip["headsign"].as<std::string>();
       for (const auto &abbr : this->abbreviations_) {
         size_t pos = headsign.find(abbr.first);
@@ -126,6 +128,17 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
 
       Color route_color = this->default_route_color_;
       std::string route_name = trip["routeName"].as<std::string>();
+
+      // Add vehicle number to headsign if available and enabled
+      if (this->show_vehicle_numbers_) {
+        std::string vehicle = trip["vehicle"].as<std::string>();
+        if (!vehicle.empty()) {
+          // PULLMAN SPECIFIC: Only show last 3 digits of vehicle number (i.e., exclude the model year)
+          if (vehicle.size() > 4)
+            vehicle.erase(0, vehicle.size() - 3);
+          headsign += " (" + vehicle + ')';
+        }
+      }
 
       if (route_style != this->route_styles_.end()) {
         route_color = route_style->second.color;
@@ -338,22 +351,27 @@ void TransitTracker::draw_trip(
     const Trip &trip, int y_offset, int font_height, unsigned long uptime, uint rtc_now,
     bool no_draw, int *headsign_overflow_out, int scroll_cycle_duration
 ) {
+    // PULLMAN SPECIFIC: Don't draw route name (because the headsign is the same)
+    /*
     if (!no_draw) {
       this->display_->print(0, y_offset, this->font_, trip.route_color, display::TextAlign::TOP_LEFT, trip.route_name.c_str());
     }
 
     int route_width, _;
     this->font_->measure(trip.route_name.c_str(), &route_width, &_, &_, &_);
-
+    */
     auto time_display = this->localization_.fmt_duration_from_now(
       this->display_departure_times_ ? trip.departure_time : trip.arrival_time,
       rtc_now
     );
 
+    int _;
     int time_width;
     this->font_->measure(time_display.c_str(), &time_width, &_, &_, &_);
 
-    int headsign_clipping_start = route_width + 3;
+    // int headsign_clipping_start = route_width + 3;
+    
+    int headsign_clipping_start = 0;
     int headsign_clipping_end = this->display_->get_width() - time_width - 2;
 
     if (!no_draw) {
@@ -416,7 +434,8 @@ void TransitTracker::draw_trip(
     }
 
     this->display_->start_clipping(headsign_clipping_start, 0, headsign_clipping_end, this->display_->get_height());
-    this->display_->print(headsign_clipping_start - scroll_offset, y_offset, this->font_, trip.headsign.c_str());
+    // PULLMAN SPECIFIC: Color headsign
+    this->display_->print(headsign_clipping_start - scroll_offset, y_offset, this->font_, trip.route_color, trip.headsign.c_str());
     this->display_->end_clipping();
 }
 

@@ -74,30 +74,56 @@ time:
     timezone: America/Los_Angeles
 
 color:
-  - id: rapidride_red
-    hex: "F50046"
+  - id: white
+    hex: "FFFFFF"
+  - id: blue
+    hex: "273695"
+  - id: silver
+    hex: "B7B0B0"
+  - id: crimson
+    hex: "A60F2D"
 
 transit_tracker:
   id: tracker
-  base_url: "wss://tt.horner.tj/"
+  base_url: "wss://pttracker.saucylegs.me/"
   limit: 3
-  feed_code: "st"
+  feed_code: "pt"
+  default_route_color: white
+  show_vehicle_numbers: true
   stops:
-    - stop_id: "1_71971" # Redmond Way & Bear Creek Pkwy
-      time_offset: -8min
+    - stop_id: "9766759" # Flag Lane east bound
       routes:
-        - "1_100113" # 221
-        - "1_102704" # 250
-    - stop_id: "1_71961" # RTC
-      time_offset: -10min
+        - "3139" # Apartmentland
+        - "3135" # Blue
+        - "5328" # Campus
+        - "3138" # Loop
+        - "3137" # Silver
+        - "3545" # Wheat
+        - "6848" # Airport direct
+        - "6307" # Airport full
+    - stop_id: "9767756" # Flag Lane west bound
       routes:
-        - "1_102548" # B Line
+        - "3544" # Paradise
+        - "3545" # Wheat
+        - "3549" # Lentil
+        - "6448" # From Airport direct
+
   styles:
-    - route_id: "1_102548"
-      name: "B"
-      color: rapidride_red
+    - route_id: "3135"
+      name: "Blue"
+      color: blue
+    - route_id: "3137"
+      name: "Silver"
+      color: silver
+    - route_id: "5328"
+      name: "Campus"
+      color: crimson
   abbreviations:
-    - from: "Bellevue Transit Center Crossroads"
-      to: "Bellevue TC"
-    - from: "Transit Center"
-      to: "TC"
+    - from: "Express"
+      to: "Exp"
+    - from: "Airport - Departures (direct route)"
+      to: "To Airport"
+    - from: "Airport - Departures (full route)"
+      to: "To Airport"
+    - from: "From Airport - direct"
+      to: "From Airport"
