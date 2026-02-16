@@ -113,8 +113,23 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
     auto data = root["data"].as<JsonObject>();
 
     for (auto trip : data["trips"].as<JsonArray>()) {
+      auto route_id = trip["routeId"].as<std::string>();
+      auto route_style = this->route_styles_.find(route_id);
+
+      Color route_color = this->default_route_color_;
+      std::string route_name = trip["routeName"].as<std::string>();
+
+      if (route_style != this->route_styles_.end()) {
+        route_color = route_style->second.color;
+        route_name = route_style->second.name;
+      }
+      // PULLMAN SPECIFIC: Do not use GTFS color (because they are usually meaningless and not always unique)
+      /* else if (!trip["routeColor"].isNull()) {
+        route_color = Color(std::stoul(trip["routeColor"].as<std::string>(), nullptr, 16));
+      } */
+
       // PULLMAN SPECIFIC: Have headsign = route name
-      std::string headsign = trip["routeName"].as<std::string>();
+      std::string headsign = route_name;
       for (const auto &abbr : this->abbreviations_) {
         size_t pos = headsign.find(abbr.first);
         if (pos != std::string::npos) {
@@ -122,12 +137,6 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
           headsign.replace(pos, abbr.first.length(), abbr.second);
         }
       }
-
-      auto route_id = trip["routeId"].as<std::string>();
-      auto route_style = this->route_styles_.find(route_id);
-
-      Color route_color = this->default_route_color_;
-      std::string route_name = trip["routeName"].as<std::string>();
 
       // Add vehicle number to headsign if available and enabled
       if (this->show_vehicle_numbers_ && !trip["vehicle"].isNull()) {
@@ -139,15 +148,6 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
           headsign += " (" + vehicle + ')';
         }
       }
-
-      if (route_style != this->route_styles_.end()) {
-        route_color = route_style->second.color;
-        route_name = route_style->second.name;
-      }
-      // PULLMAN SPECIFIC: Do not use GTFS color (because they are usually meaningless and not always unique)
-      /* else if (!trip["routeColor"].isNull()) {
-        route_color = Color(std::stoul(trip["routeColor"].as<std::string>(), nullptr, 16));
-      } */
 
       this->schedule_state_.trips.push_back({
         .route_id = route_id,
