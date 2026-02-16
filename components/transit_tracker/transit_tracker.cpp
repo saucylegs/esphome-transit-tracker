@@ -114,7 +114,7 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
 
     for (auto trip : data["trips"].as<JsonArray>()) {
       // PULLMAN SPECIFIC: Have headsign = route name
-      std::string headsign = trip["headsign"].as<std::string>();
+      std::string headsign = trip["routeName"].as<std::string>();
       for (const auto &abbr : this->abbreviations_) {
         size_t pos = headsign.find(abbr.first);
         if (pos != std::string::npos) {
@@ -130,7 +130,7 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
       std::string route_name = trip["routeName"].as<std::string>();
 
       // Add vehicle number to headsign if available and enabled
-      if (this->show_vehicle_numbers_) {
+      if (this->show_vehicle_numbers_ && !trip["vehicle"].isNull()) {
         std::string vehicle = trip["vehicle"].as<std::string>();
         if (!vehicle.empty()) {
           // PULLMAN SPECIFIC: Only show last 3 digits of vehicle number (i.e., exclude the model year)
@@ -143,9 +143,11 @@ void TransitTracker::on_ws_message_(websockets::WebsocketsMessage message) {
       if (route_style != this->route_styles_.end()) {
         route_color = route_style->second.color;
         route_name = route_style->second.name;
-      } else if (!trip["routeColor"].isNull()) {
-        route_color = Color(std::stoul(trip["routeColor"].as<std::string>(), nullptr, 16));
       }
+      // PULLMAN SPECIFIC: Do not use GTFS color (because they are usually meaningless and not always unique)
+      /* else if (!trip["routeColor"].isNull()) {
+        route_color = Color(std::stoul(trip["routeColor"].as<std::string>(), nullptr, 16));
+      } */
 
       this->schedule_state_.trips.push_back({
         .route_id = route_id,
@@ -370,7 +372,7 @@ void TransitTracker::draw_trip(
     this->font_->measure(time_display.c_str(), &time_width, &_, &_, &_);
 
     // int headsign_clipping_start = route_width + 3;
-    
+
     int headsign_clipping_start = 0;
     int headsign_clipping_end = this->display_->get_width() - time_width - 2;
 
