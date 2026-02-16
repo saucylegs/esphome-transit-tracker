@@ -74,8 +74,8 @@ time:
     timezone: America/Los_Angeles
 
 color:
-  - id: white
-    hex: "FFFFFF"
+  - id: default
+    hex: "A7A7A7"
   - id: blue
     hex: "273695"
   - id: silver
@@ -88,7 +88,7 @@ transit_tracker:
   base_url: "wss://pttracker.saucylegs.me/"
   limit: 3
   feed_code: "pt"
-  default_route_color: white
+  default_route_color: default
   show_vehicle_numbers: true
   stops:
     - stop_id: "9766759" # Flag Lane east bound
