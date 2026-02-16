@@ -56,9 +56,67 @@ display:
     CLK_pin: 2
     clock_phase: false
     i2sspeed: HZ_20M
-    brightness: 255
+    brightness: 192  # Initial brightness, from 0 to 255
     lambda: |-
       id(tracker).draw_schedule();
+
+switch:
+  - platform: hub75_matrix_display
+    matrix_id: matrix
+    name: "Power"
+    restore_mode: ALWAYS_ON
+    id: power
+
+number:
+  - platform: hub75_matrix_display
+    matrix_id: matrix
+    name: "Brightness"
+    id: brightness
+
+binary_sensor:
+  # Increase brightness when up button is pressed
+  - platform: gpio
+    id: up_button
+    pin:
+      number: 6
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - settle: 100ms
+    on_press:
+      then:
+        - lambda: |-
+            auto br = id(brightness).state;
+            if (id(power).state == false || br == 0.0) {
+              // If off, turn back on
+              id(power).turn_on();
+              id(brightness).control(32);
+            } else if (br >= 223.0) {
+              id(brightness).control(255);
+            } else {
+              id(brightness).control(br + 32);
+            }
+  # Decrease brightness when down button is pressed
+  - platform: gpio
+    id: down_button
+    pin:
+      number: 7
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - settle: 100ms
+    on_press:
+      then:
+        - lambda: |-
+            auto br = id(brightness).state;
+            if (br <= 32.0) {
+              // Turn off
+              id(power).turn_off();
+            } else {
+              id(brightness).control(br - 32);
+            }
 
 font:
   - file: "fonts/Pixolletta8px.ttf"
@@ -74,7 +132,7 @@ time:
     timezone: America/Los_Angeles
 
 color:
-  - id: default
+  - id: white
     hex: "A7A7A7"
   - id: blue
     hex: "273695"
@@ -82,13 +140,15 @@ color:
     hex: "B7B0B0"
   - id: crimson
     hex: "A60F2D"
+  - id: cyan
+    hex: "00A7A7"
 
 transit_tracker:
   id: tracker
   base_url: "wss://pttracker.saucylegs.me/"
   limit: 3
   feed_code: "pt"
-  default_route_color: default
+  default_route_color: white
   show_vehicle_numbers: true
   stops:
     - stop_id: "9766759" # Flag Lane east bound
@@ -107,7 +167,6 @@ transit_tracker:
         - "3545" # Wheat
         - "3549" # Lentil
         - "6448" # From Airport direct
-
   styles:
     - route_id: "3135"
       name: "Blue"
@@ -118,12 +177,15 @@ transit_tracker:
     - route_id: "5328"
       name: "Campus"
       color: crimson
+    - route_id: "6848"
+      name: "To Airport"
+      color: cyan
+    - route_id: "6307"
+      name: "To Airport"
+      color: cyan
+    - route_id: "6448"
+      name: "From Airport"
+      color: cyan
   abbreviations:
     - from: "Express"
       to: "Exp"
-    - from: "Airport - Departures (direct route)"
-      to: "To Airport"
-    - from: "Airport - Departures (full route)"
-      to: "To Airport"
-    - from: "From Airport - direct"
-      to: "From Airport"
