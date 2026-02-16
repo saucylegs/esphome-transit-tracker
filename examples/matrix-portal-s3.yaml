@@ -146,8 +146,12 @@ color:
 transit_tracker:
   id: tracker
   base_url: "wss://pttracker.saucylegs.me/"
-  limit: 3
+  limit: 6
+  # Optional: Cycle through trips instead of showing them all at once
+  trips_per_page: 3
+  page_cycle_duration: 5s
   feed_code: "pt"
+  list_mode: nextPerRoute # Comment out this line to show all next trips, instead of just one for each route
   default_route_color: white
   show_vehicle_numbers: true
   stops:
