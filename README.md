@@ -7,6 +7,7 @@ This component is used by the [Transit Tracker](https://transit-tracker.eastside
 ## Fork information
 This repository has the following differences from the [original version](https://github.com/tjhorner/esphome-transit-tracker) created by TJ Horner:
 - There is an option to display the public identifier of the vehicle operating each trip, if such information is available. For this feature to be functional, the Transit Tracker API that you use needs to support this feature. [My version](https://github.com/saucylegs/transit-tracker-api) does, but most do not.
+- The firmware supports cycling through multiple pages of trips, with options to configure this behavior (thanks [sparkyfen](https://github.com/sparkyfen) for developing this feature).
 - The firmware has tweaks that make it uniquely suited to Pullman Transit, which exclusively operates unidirectional routes. The most significant change is that the headsign is not displayed, only the route name is. Pullman-specific changes are identified by comments in the C++ source code.
 - The [example config file](examples/matrix-portal-s3.yaml) includes components that make the Matrix Portal S3's side buttons functional. The up and down buttons will increase and decrease the display's brightness respectively.
   - The example config file is essentially identical to the configuration I personally use when I'm in Pullman, except for the exclusion of some sensitive data.
@@ -46,7 +47,12 @@ transit_tracker:
   feed_code: "st"
 
   # Maximum number of arrivals to show
-  limit: 3
+  limit: 6
+
+  # Page cycling: Show a subset of trips at a time, cycling through pages
+  # If not set, all trips up to 'limit' are shown at once (default behavior)
+  trips_per_page: 3  # Number of trips to show per page
+  page_cycle_duration: 5s  # How long to show each page before cycling to the next
 
   # Whether to display arrival or departure times
   time_display: departure # or "arrival"
