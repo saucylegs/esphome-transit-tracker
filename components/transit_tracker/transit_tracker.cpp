@@ -71,8 +71,9 @@ void TransitTracker::dump_config() {
   ESP_LOGCONFIG(TAG, "  Scroll headsigns: %s", this->scroll_headsigns_ ? "true" : "false");
   ESP_LOGCONFIG(TAG, "  Show vehicle numbers: %s", this->show_vehicle_numbers_ ? "true" : "false");
 
-  if (this->trips_per_page_ > 0) {
-    ESP_LOGCONFIG(TAG, "  Trips per page: %d", this->trips_per_page_);
+  if (this->max_trips_per_page_ > 0) {
+    ESP_LOGCONFIG(TAG, "  Max trips per page: %d", this->max_trips_per_page_);
+    ESP_LOGCONFIG(TAG, "  Min trips per page: %d", this->min_trips_per_page_);
     ESP_LOGCONFIG(TAG, "  Page cycle duration: %d ms", this->page_cycle_duration_);
   } else {
     ESP_LOGCONFIG(TAG, "  Page cycling: disabled (showing all trips)");
