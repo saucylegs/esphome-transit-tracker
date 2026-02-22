@@ -47,7 +47,8 @@ class TransitTracker : public Component {
     void set_limit(int limit) { limit_ = limit; }
     void set_scroll_headsigns(bool scroll_headsigns) { scroll_headsigns_ = scroll_headsigns; }
     void set_show_vehicle_numbers(bool show_vehicle_numbers) { show_vehicle_numbers_ = show_vehicle_numbers; }
-    void set_trips_per_page(int trips_per_page) { trips_per_page_ = trips_per_page; }
+    void set_max_trips_per_page(int max_trips_per_page) { max_trips_per_page_ = max_trips_per_page; }
+    void set_min_trips_per_page(int min_trips_per_page) { min_trips_per_page_ = min_trips_per_page; }
     void set_page_cycle_duration(int page_cycle_duration) { page_cycle_duration_ = page_cycle_duration; }
 
     void set_unit_display(UnitDisplay unit_display) { this->localization_.set_unit_display(unit_display); }
@@ -97,9 +98,11 @@ class TransitTracker : public Component {
     int limit_;
 
     // Page cycling configuration
-    // trips_per_page_ = -1 means show all trips (uses limit_ value for backward compatibility)
+    // max_trips_per_page_ = -1 means show all trips (uses limit_ value for backward compatibility)
     // When set to a positive value, display will cycle through pages of trips
-    int trips_per_page_ = -1;
+    int max_trips_per_page_ = -1;
+    // Do not create a new page unless it can contain at least min_trips_per_page_.
+    int min_trips_per_page_ = 1;
     int page_cycle_duration_ = 5000;  // milliseconds per page
 
     std::map<std::string, std::string> abbreviations_;

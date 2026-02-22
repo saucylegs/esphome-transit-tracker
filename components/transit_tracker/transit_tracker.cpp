@@ -496,13 +496,17 @@ void HOT TransitTracker::draw_schedule() {
   uint rtc_now = this->rtc_->now().timestamp;
 
   // Determine how many trips to show per page
-  // If trips_per_page_ is not set (== -1), use limit_ to show all trips (backward compatible)
-  int trips_per_page = (this->trips_per_page_ > 0) ? this->trips_per_page_ : this->limit_;
+  // If max_trips_per_page_ is not set (== -1), use limit_ to show all trips (backward compatible)
+  int max_trips_per_page = (this->max_trips_per_page_ > 0) ? this->max_trips_per_page_ : this->limit_;
 
   // Calculate which page to show based on uptime
   // Pages cycle automatically based on page_cycle_duration_
   int total_trips = this->schedule_state_.trips.size();
-  int num_pages = (total_trips + trips_per_page - 1) / trips_per_page;  // ceiling division
+  int num_pages = total_trips / max_trips_per_page; // floor division
+  // Determine, based on min_trips_per_page_, whether to add an additional page
+  if (total_trips % max_trips_per_page >= this->min_trips_per_page_) {
+    num_pages++;
+  }
   int current_page = 0;
   if (num_pages > 1) {
     // Cycle through pages: page index changes every page_cycle_duration_ milliseconds
@@ -510,9 +514,9 @@ void HOT TransitTracker::draw_schedule() {
   }
 
   // Calculate which trips to show on this page
-  // For example, if trips_per_page=2 and current_page=1, show trips at indices 2-3
-  int start_index = current_page * trips_per_page;
-  int end_index = std::min(start_index + trips_per_page, total_trips);
+  // For example, if max_trips_per_page=2 and current_page=1, show trips at indices 2-3
+  int start_index = current_page * max_trips_per_page;
+  int end_index = std::min(start_index + max_trips_per_page, total_trips);
 
   // Calculate scroll cycle duration for headsigns (if enabled)
   int scroll_cycle_duration = 0;

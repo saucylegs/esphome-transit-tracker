@@ -51,7 +51,8 @@ transit_tracker:
 
   # Page cycling: Show a subset of trips at a time, cycling through pages
   # If not set, all trips up to 'limit' are shown at once (default behavior)
-  trips_per_page: 3  # Number of trips to show per page
+  max_trips_per_page: 3  # Maximum number of trips to show per page
+  min_trips_per_page: 1  # The last page will not be shown if it does not have at least this many trips
   page_cycle_duration: 5s  # How long to show each page before cycling to the next
 
   # Whether to display arrival or departure times

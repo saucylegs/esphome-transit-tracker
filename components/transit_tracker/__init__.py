@@ -35,7 +35,8 @@ CONF_TIME_DISPLAY = "time_display"
 CONF_LIST_MODE = "list_mode"
 CONF_SCROLL_HEADSIGNS = "scroll_headsigns"
 CONF_SHOW_VEHICLE_NUMBERS = "show_vehicle_numbers"
-CONF_TRIPS_PER_PAGE = "trips_per_page"
+CONF_MAX_TRIPS_PER_PAGE = "max_trips_per_page"
+CONF_MIN_TRIPS_PER_PAGE = "min_trips_per_page"
 CONF_PAGE_CYCLE_DURATION = "page_cycle_duration"
 
 
@@ -75,7 +76,8 @@ CONFIG_SCHEMA = cv.All(
                 "sequential", "nextPerRoute"
             ),
             cv.Optional(CONF_SCROLL_HEADSIGNS, default=False) : cv.boolean,
-            cv.Optional(CONF_TRIPS_PER_PAGE): cv.positive_int,
+            cv.Optional(CONF_MAX_TRIPS_PER_PAGE): cv.positive_int,
+            cv.Optional(CONF_MIN_TRIPS_PER_PAGE, default=1): cv.int_range(1),
             cv.Optional(CONF_PAGE_CYCLE_DURATION, default="5s"): cv.time_period,
             cv.Optional(CONF_STOPS, default=[]): cv.ensure_list(
                 cv.Schema(
@@ -145,8 +147,10 @@ async def to_code(config):
     cg.add(var.set_scroll_headsigns(config[CONF_SCROLL_HEADSIGNS]))
     cg.add(var.set_show_vehicle_numbers(config[CONF_SHOW_VEHICLE_NUMBERS]))
 
-    if CONF_TRIPS_PER_PAGE in config:
-        cg.add(var.set_trips_per_page(config[CONF_TRIPS_PER_PAGE]))
+    if CONF_MAX_TRIPS_PER_PAGE in config:
+        cg.add(var.set_max_trips_per_page(config[CONF_MAX_TRIPS_PER_PAGE]))
+    
+    cg.add(var.set_min_trips_per_page(config[CONF_MIN_TRIPS_PER_PAGE]))
 
     page_cycle_duration_ms = int(config[CONF_PAGE_CYCLE_DURATION].total_seconds * 1000)
     cg.add(var.set_page_cycle_duration(page_cycle_duration_ms))

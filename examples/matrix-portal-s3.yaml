@@ -148,7 +148,8 @@ transit_tracker:
   base_url: "wss://pttracker.saucylegs.me/"
   limit: 6
   # Optional: Cycle through trips instead of showing them all at once
-  trips_per_page: 3
+  max_trips_per_page: 3
+  min_trips_per_page: 1
   page_cycle_duration: 5s
   feed_code: "pt"
   list_mode: nextPerRoute # Comment out this line to show all next trips, instead of just one for each route
