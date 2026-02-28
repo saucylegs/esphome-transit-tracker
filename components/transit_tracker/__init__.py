@@ -6,8 +6,9 @@ from esphome.components.font import Font
 from esphome.components.time import RealTimeClock
 from esphome.components import color
 from esphome.const import CONF_ID, CONF_DISPLAY_ID, CONF_TIME_ID, CONF_SHOW_UNITS, __version__ as ESPHOME_VERSION
+from esphome.types import ConfigType
 
-_MINIMUM_ESPHOME_VERSION = "2025.7.0"
+_MINIMUM_ESPHOME_VERSION = "2025.11.0"
 
 DEPENDENCIES = ["network"]
 AUTO_LOAD = ["json", "watchdog"]
@@ -56,6 +57,13 @@ def validate_esphome_version(obj):
             f"{_MINIMUM_ESPHOME_VERSION} or later."
         )
     return obj
+
+
+def _consume_transit_tracker_sockets(config: ConfigType) -> ConfigType:
+    """Register socket needs for transit_tracker component."""
+    from esphome.components import socket
+    socket.consume_sockets(1, "transit_tracker")(config)
+    return config
 
 
 CONFIG_SCHEMA = cv.All(
@@ -111,6 +119,7 @@ CONFIG_SCHEMA = cv.All(
             ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
+    _consume_transit_tracker_sockets,
 )
 
 
@@ -188,6 +197,7 @@ async def to_code(config):
 
     cg.add_library("NetworkClientSecure", None)
     cg.add_library("HTTPClient", None)
+    cg.add_library("WiFi", None) # Dependency of ArduinoWebsockets
 
     # Fork contains patch for TLS issue - https://github.com/gilmaimon/ArduinoWebsockets/pull/142
     cg.add_library(
