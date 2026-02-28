@@ -511,7 +511,7 @@ void HOT TransitTracker::draw_schedule() {
   int total_trips = this->schedule_state_.trips.size();
   int num_pages = total_trips / max_trips_per_page; // floor division
   // Determine, based on min_trips_per_page_, whether to add an additional page
-  if (total_trips % max_trips_per_page >= this->min_trips_per_page_) {
+  if (num_pages == 0 || total_trips % max_trips_per_page >= this->min_trips_per_page_) {
     num_pages++;
   }
   int current_page = 0;
